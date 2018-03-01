@@ -13,28 +13,38 @@
  * express or implied. See the License for the specific language governing
  * permissions and limitations under the License.
  */
+
 namespace Amazon\Core\Domain;
 
 use Amazon\Core\Api\Data\AmazonNameInterface;
 
-class AmazonName extends \Magento\Framework\DataObject implements AmazonNameInterface
+class AmazonNameDecoratorJp implements AmazonNameInterface
 {
-    const FIRST_NAME = 'first_name';
-    const LAST_NAME  = 'last_name';
+    /**
+     * @var AmazonNameInterface
+     */
+    private $amazonName;
 
     /**
-     * {@inheritdoc}
+     * @param AmazonNameInterface $amazonName
      */
-    public function getFirstName()
+    public function __construct(AmazonNameInterface $amazonName)
     {
-        return $this->getData(self::FIRST_NAME);
+        $this->amazonName = $amazonName;
     }
 
-    /**
-     * {@inheritdoc}
-     */
+    public function getFirstName()
+    {
+        return $this->convertKana($this->amazonName->getLastName());
+    }
+
     public function getLastName()
     {
-        return $this->getData(self::LAST_NAME);
+        return $this->convertKana($this->amazonName->getFirstName());
+    }
+
+    private function convertKana($string)
+    {
+        return mb_convert_kana($string, 's', 'utf-8');
     }
 }
